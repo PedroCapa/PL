@@ -13,7 +13,9 @@ char * info;
 ^\[.*\n								{;}
 ^#.*\n								{;}
 ^\<.*\n								{;}
+━*									{;}
 Etiquetas:.*\n						{;}
+PARTILHE" "*VIA:					{;}
 (.|\n)								{ECHO;}
 %%
 
@@ -22,10 +24,6 @@ int yywrap(){
 }
 
 int main(){
-	
-	printf("Inicio da filtragem\n");
 	yylex();
-	printf("Fim da filtragem\n");
-
-	return 0;
+	return 1;
 }
