@@ -36,7 +36,7 @@ tag:								{BEGIN TAGS;}
 
 <TEXTO>^\[.*						{;}
 <TEXTO>\<\/pub>						{printf("\n	    </text>\n</pub>\n");BEGIN INITIAL;}
-<TEXTO>^[^<]+						{texto = strdup((char*) yytext); printf("	<text>\n%s", texto);}
+<TEXTO>^[^\[]+						{texto = strdup((char*) yytext); printf("	<text>\n%s", texto);}
 
 Etiquetas:.*\n						{;}
 (.|\n)								{;}
@@ -47,10 +47,6 @@ int yywrap(){
 }
 
 int main(){
-	
-	printf("Inicio da filtragem\n");
 	yylex();
-	printf("Fim da filtragem\n");
-
 	return 0;
 }
