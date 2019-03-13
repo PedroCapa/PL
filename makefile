@@ -1,6 +1,6 @@
 CC=gcc
 LEX=lex.yy.c
-CFLAGS= `pkg-config --cflags glib-2.0` `pkg-config --libs glib-2.0`
+CFLAGS= `pkg-config --cflags glib-2.0` `pkg-config --libs glib-2.0` -g
 
 tp1:	TP1.l
 	flex TP1.l
@@ -8,8 +8,9 @@ tp1:	TP1.l
 
 criarHTML:	criarHTML.l
 	flex criarHTML.l
-	$(CC) -o criarHTML.out $(LEX) $(CFLAGS)
+	$(CC) -o criarHTML.out $(LEX) createHTML.c $(CFLAGS)
 
 clean:
 	rm $(LEX)
 	rm *.out
+	rm *.html

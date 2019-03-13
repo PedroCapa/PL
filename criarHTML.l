@@ -1,6 +1,10 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
+#include "createHTML.h"
+
+GTree * tree;
 
 char * info;
 char * categoria;
@@ -19,26 +23,26 @@ char * tags;
 %x ID
 
 %%
-^#TAG:								{printf("	<tags>\n");}
 tag:								{BEGIN TAGS;}
-^#ID:\{								{printf("	</tags>\n"); BEGIN ID;}
+^#ID:\{								{BEGIN ID;}
 ^#DATE:" "[^\]]*					{BEGIN DATA;}
-<ID>[^ ]*							{titulo = strdup((char*) yytext); printf("<pub id=\"%s\">\n", titulo); BEGIN CATEGORIA;}
+<ID>[^ ]*							{info = strdup((char*) yytext); BEGIN CATEGORIA;}
 
 
-<TAGS>\{[^}]*						{tags = strdup((char*) yytext + 1); printf("		<tag>%s</tag>\n", tags); BEGIN INITIAL;}
+<TAGS>\{[^}]*						{tags = strdup((char*) yytext + 1); g_tree_insert(tree, tags, NULL);
+									BEGIN INITIAL;}
 
 <CATEGORIA,TITULO,DATA>(.|\n)		{;}
 
-<CATEGORIA>^[A-Za-z]+				{categoria = strdup((char*) yytext); printf("	<category>%s</categoty>\n", categoria); BEGIN TITULO;}
-<TITULO>^[^\n]*						{titulo = strdup((char*) yytext); printf("	<title>%s</title>\n", titulo); BEGIN INITIAL;}
-<DATA>.+							{data = strdup((char*) yytext + 1); printf("	<author_date>%s</author_date>\n", data); BEGIN TEXTO;}
+<CATEGORIA>^[A-Za-z]+				{categoria = strdup((char*) yytext); BEGIN TITULO;}
+<TITULO>^[^\n]*						{titulo = strdup((char*) yytext); BEGIN INITIAL;}
 
-<TEXTO>^\[.*						{;}
-<TEXTO>\<\/pub>						{printf("\n	    </text>\n</pub>\n");BEGIN INITIAL;}
-<TEXTO>^[^\[]+						{texto = strdup((char*) yytext); printf("	<text>\n%s", texto);}
+<DATA>^\[.*							{BEGIN TEXTO;}
+<DATA>.+							{data = strdup((char*) yytext + 1);}
 
-Etiquetas:.*\n						{;}
+<TEXTO>^[^\<]+						{texto = strdup((char*) yytext);
+									escreveFile(tree, info, categoria, titulo, data, texto, tags);}
+
 (.|\n)								{;}
 %%
 
@@ -46,7 +50,14 @@ int yywrap(){
 	return 1;
 }
 
+int mystrcmp(const void* s1, const void* s2){
+
+	return strcmp(s1, s2);
+}
+
 int main(){
+
+	tree = g_tree_new(mystrcmp);
 	yylex();
 	return 0;
 }
