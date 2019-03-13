@@ -50,11 +50,6 @@ int yywrap(){
 	return 1;
 }
 
-int mystrcmp(const void* s1, const void* s2){
-
-	return strcmp(s1, s2);
-}
-
 int main(){
 
 	tree = g_tree_new(mystrcmp);
