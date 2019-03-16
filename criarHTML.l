@@ -6,12 +6,15 @@
 
 GTree * tree;
 
+FILE* out;
+
 char * info;
 char * categoria;
 char * titulo;
 char * data;
 char * texto;
 char * tags;
+int cont = 0;
 %}
 
 %x CATEGORIA
@@ -29,30 +32,43 @@ tag:								{BEGIN TAGS;}
 <ID>[^ ]*							{info = strdup((char*) yytext); BEGIN CATEGORIA;}
 
 
-<TAGS>\{[^}]*						{tags = strdup((char*) yytext + 1); g_tree_insert(tree, tags, NULL);
+<TAGS>\{[^}]*						{tags = strdup((char*) yytext + 1);g_tree_insert(tree, tags, NULL);
 									BEGIN INITIAL;}
 
-<CATEGORIA,TITULO,DATA>(.|\n)		{;}
 
 <CATEGORIA>^[A-Za-z]+				{categoria = strdup((char*) yytext); BEGIN TITULO;}
 <TITULO>^[^\n]*						{titulo = strdup((char*) yytext); BEGIN INITIAL;}
 
-<DATA>^\[.*							{BEGIN TEXTO;}
-<DATA>.+							{data = strdup((char*) yytext + 1);}
+<DATA>.+							{data = strdup((char*) yytext + 1);BEGIN TEXTO;}
 
 <TEXTO>^[^\<]+						{texto = strdup((char*) yytext);
-									escreveFile(tree, info, categoria, titulo, data, texto, tags);}
+									escreveFile(out,tree, info, categoria, titulo, data, texto, tags);
+									limpa(&tree,info,categoria,titulo,data,texto,tags); BEGIN INITIAL;}
 
-(.|\n)								{;}
+<*>(.|\n)								{;}
 %%
 
 int yywrap(){
 	return 1;
 }
 
-int main(){
+int main(int argc, char *argv[]){
 
-	tree = g_tree_new(mystrcmp);
+	if(argc < 2){
+		return 1;
+	}
+
+	char filename[200];
+	sprintf(filename, "%s.norm", argv[1]);
+	out = fopen(filename, "w");
+	yyin = fopen(argv[1],"r");
+
+	printf("Inicio da filtragem\n");
+	tree = g_tree_new_full(mystrcmp,NULL,free,NULL);
 	yylex();
+
+	printf("Fim da filtragem\n");
+
+	fclose(out);
 	return 0;
 }
