@@ -42,13 +42,13 @@ tag:								{BEGIN TAGS;}
 <DATA>.+							{
 										fprintf(out, "<pub id=\"%s\">\n", info);
 										fprintf(out, "	<title>%s</title>\n", titulo);
-										fprintf(out, "	<author_date>%s<author_date>\n", yytext + 1);
+										fprintf(out, "	<author_date>%s</author_date>\n", yytext + 1);
 										if(g_tree_nnodes(tree) > 0){
 											fprintf(out, "	<tags>\n");
 											g_tree_foreach(tree, travessia, out);
 											fprintf(out, "	</tags>\n");
 										}
-										fprintf(out, "	<category>%s<category>\n	<text>", categoria);
+										fprintf(out, "	<category>%s</category>\n	<text>", categoria);
 										limpa(&tree,info,categoria,titulo,data,texto,tags);
 										BEGIN TEXTO;
 									}
@@ -87,6 +87,7 @@ int main(int argc, char *argv[]){
 
 	printf("Fim da filtragem\n");
 
+	fclose(yyin);
 	fclose(out);
 	return 0;
 }
