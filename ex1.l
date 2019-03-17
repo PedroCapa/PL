@@ -4,7 +4,8 @@
 #include <glib.h>
 #include "createHTML.h"
 
-GTree * tree;
+GTree * tagTree;
+GTree * idTree;   				//para limpar repetidos
 
 FILE* out;
 
@@ -22,34 +23,47 @@ int cont = 0;
 %x TEXTO
 %x TRANSICAO
 %x DATA
+%x DATE
 %x TAGS
 %x ID
 
 %%
 tag:								{BEGIN TAGS;}
 ^#ID:\{								{BEGIN ID;}
-^#DATE:" "[^\]]*					{BEGIN DATA;}
-<ID>[^ ]*							{info = strdup((char*) yytext); BEGIN CATEGORIA;}
+<ID>[^ ]*							{
+										info = strdup((char*) yytext);	
+										if(g_tree_lookup_extended(idTree,info,NULL,NULL)){
+											g_tree_destroy(tagTree);
+											tagTree = g_tree_new_full(mystrcmp,NULL,free,NULL);
+											BEGIN INITIAL;
+
+										}
+										else{
+											g_tree_insert(idTree,strdup(info),NULL);
+											BEGIN CATEGORIA;
+										}
+									}
 
 
-<TAGS>\{[^}]*						{tags = strdup((char*) yytext + 1);g_tree_insert(tree, tags, NULL);
+<TAGS>\{[^}]*						{tags = strdup((char*) yytext + 1);g_tree_insert(tagTree, tags, NULL);
 									BEGIN INITIAL;}
 
 
 <CATEGORIA>^[A-Za-z]+				{categoria = strdup((char*) yytext); BEGIN TITULO;}
-<TITULO>^[^\n]*						{titulo = strdup((char*) yytext); BEGIN INITIAL;}
+<TITULO>^[^\n]*						{titulo = strdup((char*) yytext); BEGIN DATE;}
 
+<DATE>^#DATE:" "[^\]]*				{BEGIN DATA;}
 <DATA>.+							{
 										fprintf(out, "<pub id=\"%s\">\n", info);
 										fprintf(out, "	<title>%s</title>\n", titulo);
 										fprintf(out, "	<author_date>%s</author_date>\n", yytext + 1);
-										if(g_tree_nnodes(tree) > 0){
+										if(g_tree_nnodes(tagTree) > 0){
 											fprintf(out, "	<tags>\n");
-											g_tree_foreach(tree, travessia, out);
+											g_tree_foreach(tagTree, travessia, out);
 											fprintf(out, "	</tags>\n");
 										}
 										fprintf(out, "	<category>%s</category>\n	<text>", categoria);
-										limpa(&tree,info,categoria,titulo,data,texto,tags);
+										limpa(&tagTree,info,categoria,titulo,data,texto,tags);
 										BEGIN TEXTO;
 									}
 
@@ -82,11 +96,13 @@ int main(int argc, char *argv[]){
 	yyin = fopen(argv[1],"r");
 
 	printf("Inicio da filtragem\n");
-	tree = g_tree_new_full(mystrcmp,NULL,free,NULL);
+	tagTree = g_tree_new_full(mystrcmp,NULL,free,NULL);
+	idTree = g_tree_new_full(mystrcmp,NULL,free,NULL);
 	yylex();
 
 	printf("Fim da filtragem\n");
 
+	g_tree_destroy(idTree);
 	fclose(yyin);
 	fclose(out);
 	return 0;

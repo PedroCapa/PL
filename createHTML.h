@@ -10,3 +10,4 @@ void escreveFile(FILE *out, GTree * tree, char * info, char * categoria,
 
 
 gint travessia(gpointer key, gpointer value, gpointer data);
+gint criaTags(gpointer key, gpointer value, gpointer data);

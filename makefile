@@ -8,7 +8,7 @@ ex1:	ex1.l
 
 ex2:	ex2.l
 	flex ex2.l
-	$(CC) -o ex2.out $(LEX)
+	$(CC) -o ex2.out $(LEX) createHTML.c $(CFLAGS)
 
 criarHTML:	criarHTML.l
 	flex criarHTML.l

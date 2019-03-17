@@ -1,6 +1,10 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
+#include "createHTML.h"
+
+GTree * tree;
 
 FILE* out;
 char *title,*post;
@@ -18,7 +22,7 @@ int conta=0;
 										fprintf(out, "<html>\n<head><meta charset=\"UTF-8\">\n<title>%s</title>\n</head>\n<body>\n<h1>%s</h1>\n", title,title);}
 
 <TITLE>\<tags\>							{BEGIN TAGS;fprintf(out, "tags:");}
-<TITLE>\<text\>							{BEGIN TEXT;}
+<TITLE>\<text\>							{BEGIN TEXT;fprintf(out, "\n<br>\n");}
 
 
 <TAGS>\<tag\>.*\<\/tag\>				{yytext[yyleng-6]='\0';
@@ -31,15 +35,19 @@ int conta=0;
 												tag[i-5] = yytext[i];
 											}
 										}tag[i-5]=0;
-										char filename[200];
-										sprintf(filename, "html/tag/%s.html", tag);
-										FILE *tagFILE = fopen(filename,"a");
-										if(tagFILE==NULL)
-											{perror("");}
+										char tagLink[512];
+										sprintf(tagLink,"  <dt><a href=\"../post/%s.html\">%s</a></dt>\n",post,title);
+										char *tl = strdup(tagLink);
+										GArray *array = (GArray *) g_tree_lookup(tree,tag);
+										if(array == NULL){
+											array = g_array_new(TRUE,TRUE,sizeof(char *));
+											array = g_array_append_val(array,tl);
+											g_tree_insert(tree,strdup(tag),array);
+										}
 										else{
-											fprintf(tagFILE,"<a href=\"../post/%s.html\">%s</a>\n<br>",post,title);
-											fprintf(out,"<a href=\"../tag/%s.html\">%s</a>; ",tag,tag);
-											fclose(tagFILE);}
+											g_array_append_val(array,tl);
+										}
+										fprintf(out,"<a href=\"../tag/%s.html\">%s</a>; ",tag,tag);
 										}
 
 <TAGS>\<\/tags\>						{BEGIN TEXT;}
@@ -64,12 +72,18 @@ int main(int argc, char *argv[]){
 
 	yyin = fopen(argv[1],"r");
 
+	tree = g_tree_new_full(mystrcmp,NULL,free,NULL);
+
 	printf("Inicio da filtragem\n");
+
 
 	yylex();
 
 	fclose(yyin);
 	printf("Fim da filtragem\n");
+
+	g_tree_foreach(tree, criaTags, NULL);
+	g_tree_destroy(tree);
 
 	return 0;
 }
