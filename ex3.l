@@ -9,9 +9,10 @@ letraM 		([A-Z]|Ç|À|Á|Ã|Â|Ä|È|É|Ẽ|Ê|Ë|Ì|Í|Ĩ|Î|Ï|Ò|Ó|Õ|Ô|Ö|
 letram 		([a-z]|ç|à|á|ã|â|ä|é|è|ẽ|ê|ë|í|ì|ĩ|î|ï|ó|ò|õ|ô|ö|ù|ú|ũ|û|ü)
 palavraM 	{letraM}{letram}*
 palavram 	{letram}+
+sep 		(\ |-|\n)
 %%
 
-({palavraM}(\ |-)?({palavram}\ )?)+\({letraM}+\)	{printf("%s\n",yytext);}
+({palavraM}{sep}?({palavram}{sep})?)+\({letraM}+\)	{printf("%s\n",yytext);} /* Substituir '\n' por ' '*/
 
 
 (.|\n)				{;}

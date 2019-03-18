@@ -21,4 +21,5 @@ criarHTML:	criarHTML.l
 clean:
 	rm $(LEX)
 	rm *.out
-	rm *.html
+	rm html/post/*.html
+	rm html/tag/*.html

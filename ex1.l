@@ -9,13 +9,12 @@ GTree * idTree;   				//para limpar repetidos
 
 FILE* out;
 
-char * info;
+char * info;					// armazena id de um post
 char * categoria;
 char * titulo;
 char * data;
 char * texto;
-char * tags;
-int cont = 0;
+char * tags;					//armazena tags de um post
 %}
 
 %x CATEGORIA

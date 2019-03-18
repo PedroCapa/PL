@@ -8,7 +8,6 @@ GTree * tree;
 
 FILE* out;
 char *title,*post;
-int conta=0;
 %}
 
 %x TEXT TITLE TAGS
