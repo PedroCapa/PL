@@ -11,7 +11,7 @@ GTree * abreviaturas;
 
 letraM 		([A-Z]|Ç|À|Á|Ã|Â|Ä|È|É|Ẽ|Ê|Ë|Ì|Í|Ĩ|Î|Ï|Ò|Ó|Õ|Ô|Ö|Ù|Ú|Ũ|Û|Ü)  
 letram 		([a-z]|ç|à|á|ã|â|ä|é|è|ẽ|ê|ë|í|ì|ĩ|î|ï|ó|ò|õ|ô|ö|ù|ú|ũ|û|ü)
-palavraM 	{letraM}{letram}*
+palavraM 	{letraM}{letram}+
 palavram 	{letram}+
 sep 		(\ |-|\n)
 %%
@@ -20,7 +20,7 @@ sep 		(\ |-|\n)
 					for(int i = 0; i < yyleng - 1; i++)
 						if(yytext[i] == '\n' && yytext[i + 1] != '\0')
 							yytext[i] = ' ';
-					g_tree_insert(abreviaturas, strdup(strcat(yytext, "\n")), NULL);} /* Substituir '\n' por ' '*/
+					g_tree_insert(abreviaturas, strdup(strcat(yytext, "\n")), NULL);}
 
 
 (.|\n)				{;}
