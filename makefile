@@ -19,8 +19,9 @@ criarHTML:	criarHTML.l
 	$(CC) -o criarHTML.out $(LEX) createHTML.c $(CFLAGS)
 
 clean:
-	rm Abreviaturas
 	rm $(LEX)
 	rm *.out
+	rm *.norm
 	rm html/post/*.html
 	rm html/tag/*.html
+	rm Abreviaturas

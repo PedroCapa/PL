@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-
+#include <stdlib.h>
 
 int mystrcmp(const void* s1, const void* s2, void *data){
 

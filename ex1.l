@@ -61,8 +61,7 @@ tag:								{BEGIN TAGS;}
 											g_tree_foreach(tagTree, travessia, out);
 											fprintf(out, "	</tags>\n");
 										}
-										fprintf(out, "	<category>%s</category>\n	<text>", categoria);
-										limpa(&tagTree,info,categoria,titulo,data,texto,tags);
+										fprintf(out, "	<category>%s</category>\n	<text>\n", categoria);
 										BEGIN TEXTO;
 									}
 
@@ -70,11 +69,14 @@ tag:								{BEGIN TAGS;}
 
 <TEXTO>"Partilhe este Artigo\n"		{;}
 
+<TEXTO>\[.*							{;}
+
 <TEXTO>\n{3,}						{;}
 
-<TEXTO><\/pub>						{fprintf(out,"\n\t</text>\n%s\n\n",yytext);BEGIN INITIAL;}
+<TEXTO><\/pub>						{fprintf(out,"\n\t</text>\n</pub>\n\n");BEGIN INITIAL;
+										limpa(&tagTree,info,categoria,titulo,data,texto,tags);}
 
-<TEXTO>(.|\n)						{fprintf(out,"%s",yytext);}
+<TEXTO>.*							{fprintf(out, "%s\n", yytext);}
 
 <*>(.|\n)								{;}
 %%
