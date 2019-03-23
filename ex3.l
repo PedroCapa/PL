@@ -16,7 +16,7 @@ palavram 	{letram}+
 sep 		(\ |-|\n)
 %%
 
-({palavraM}{sep}?({palavram}{sep})?)+\({letraM}+\)	{
+({palavraM}{sep}?({palavram}{sep})?)+\(({letraM}|{sep})+\)	{
 					for(int i = 0; i < yyleng - 1; i++)
 						if(yytext[i] == '\n' && yytext[i + 1] != '\0')
 							yytext[i] = ' ';
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 	}
 
 	abreviaturas = g_tree_new_full(mystrcmp,NULL,free,NULL);
-	FILE * out = fopen("Abreviaturas", "w");
+	FILE * out = fopen("Abreviaturas.out", "w");
 	yyin = fopen(argv[1],"r");
 
 

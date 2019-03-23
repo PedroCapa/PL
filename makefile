@@ -24,4 +24,3 @@ clean:
 	rm *.norm
 	rm html/post/*.html
 	rm html/tag/*.html
-	rm Abreviaturas
