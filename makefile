@@ -12,13 +12,14 @@ ex2:	ex2.l
 
 ex3:	ex3.l
 	flex ex3.l
-	$(CC) -o ex3.out $(LEX)
+	$(CC) -o ex3.out $(LEX) createHTML.c $(CFLAGS)
 
 criarHTML:	criarHTML.l
 	flex criarHTML.l
 	$(CC) -o criarHTML.out $(LEX) createHTML.c $(CFLAGS)
 
 clean:
+	rm Abreviaturas
 	rm $(LEX)
 	rm *.out
 	rm html/post/*.html

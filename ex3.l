@@ -1,6 +1,10 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include "createHTML.h"
+#include <glib.h>
+
+GTree * abreviaturas;
 
 %}
  /* https://stackoverflow.com/a/9611844 */
@@ -12,7 +16,11 @@ palavram 	{letram}+
 sep 		(\ |-|\n)
 %%
 
-({palavraM}{sep}?({palavram}{sep})?)+\({letraM}+\)	{printf("%s\n",yytext);} /* Substituir '\n' por ' '*/
+({palavraM}{sep}?({palavram}{sep})?)+\({letraM}+\)	{
+					for(int i = 0; i < yyleng - 1; i++)
+						if(yytext[i] == '\n' && yytext[i + 1] != '\0')
+							yytext[i] = ' ';
+					g_tree_insert(abreviaturas, strdup(strcat(yytext, "\n")), NULL);} /* Substituir '\n' por ' '*/
 
 
 (.|\n)				{;}
@@ -30,13 +38,19 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
+	abreviaturas = g_tree_new_full(mystrcmp,NULL,free,NULL);
+	FILE * out = fopen("Abreviaturas", "w");
 	yyin = fopen(argv[1],"r");
+
 
 	printf("Inicio da filtragem\n");
 
 
 	yylex();
 
+	if(g_tree_nnodes(abreviaturas) > 0)
+		g_tree_foreach(abreviaturas, insereAbv, out);
 	printf("Fim da filtragem\n");
+
 	return 0;
 }

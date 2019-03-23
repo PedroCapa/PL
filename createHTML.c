@@ -26,6 +26,13 @@ gint travessia(gpointer key, gpointer value, gpointer out){
 	return 0;
 }
 
+gint insereAbv(gpointer key, gpointer value, gpointer out){
+
+
+	fprintf((FILE *)out, "%s", (char *)key);
+	return 0;	
+}
+
 gint criaTags(gpointer key, gpointer value, gpointer out){
 
 
