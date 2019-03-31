@@ -15,7 +15,7 @@ palavram 	{letram}+
 sep 		(\ |-|\n)
 %%
 
-({palavraM}{sep}({palavram}{sep})?)+\(({letraM}|{sep})+\)	{
+({palavraM}{sep}?({palavram}{sep})?)+\(({letraM}|{sep})+\)	{
 					for(int i = 0; i < yyleng - 1; i++)
 						if(yytext[i] == '\n' && yytext[i + 1] != '\0')
 							yytext[i] = ' ';
