@@ -7,7 +7,6 @@
 GTree * abreviaturas;
 
 %}
- /* https://stackoverflow.com/a/9611844 */
 
 letraM 		([A-Z]|Ç|À|Á|Ã|Â|Ä|È|É|Ẽ|Ê|Ë|Ì|Í|Ĩ|Î|Ï|Ò|Ó|Õ|Ô|Ö|Ù|Ú|Ũ|Û|Ü)  
 letram 		([a-z]|ç|à|á|ã|â|ä|é|è|ẽ|ê|ë|í|ì|ĩ|î|ï|ó|ò|õ|ô|ö|ù|ú|ũ|û|ü)
@@ -16,7 +15,7 @@ palavram 	{letram}+
 sep 		(\ |-|\n)
 %%
 
-({palavraM}{sep}?({palavram}{sep})?)+\(({letraM}|{sep})+\)	{
+({palavraM}{sep}({palavram}{sep})?)+\(({letraM}|{sep})+\)	{
 					for(int i = 0; i < yyleng - 1; i++)
 						if(yytext[i] == '\n' && yytext[i + 1] != '\0')
 							yytext[i] = ' ';
