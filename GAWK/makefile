@@ -5,6 +5,7 @@ ex1:	ex1.gawk
 ex2:	ex2.gawk
 	mkdir Cartas
 	gawk -f ex2.gawk cartasetiopia.csv
-
+ex3:
+	gawk -f ex3.gawk cartasetiopia.csv
 clean:
 	rm -rf Cartas

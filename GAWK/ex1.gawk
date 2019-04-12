@@ -1,4 +1,4 @@
-BEGIN			{FS=";        "}
+BEGIN			{FS="; +"}
 				{split($2, data, ".");
 				if($3){
 					ano[$3][conta[$3]]=data[1];
