@@ -1,9 +1,12 @@
 BEGIN			{FS="; +"}
-				{split($2, ano, ".");
-				if(ano[1] != null){
-					titulo[ano[1]][conta[ano[1]]] = $4;
-					resumo[ano[1]][conta[ano[1]]] = $6 "\n";  conta[ano[1]]++;
+				{split($2, data, ".");
+				ano = data[1];
+				if(ano != null){
+					titulo[ano][$1] = $4;
+					for(i=6;i<=NF;i++){
+						resumo[ano][$1] = resumo[ano][$1] $i;
 					}
+				}
 				}
 END				{print "<html>\n	<head> Indice </head>\n	<body>\n		<ul>" > "Cartas/index.html";
 								for (i in titulo){
