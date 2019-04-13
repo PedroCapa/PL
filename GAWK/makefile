@@ -10,6 +10,8 @@ ex3:
 ex4:
 	gawk -f ex4.gawk cartasetiopia.csv
 	dot -Tpng ex4.dot -o ex4.png
+	gawk -f ex4alt.gawk cartasetiopia.csv
+	dot -Tpng ex4alt.dot -o ex4alt.png
 clean:
 	rm -rf Cartas
-	rm -f ex4.dot ex4.png
+	rm -f ex4.dot ex4.png ex4alt.png ex4alt.dot
