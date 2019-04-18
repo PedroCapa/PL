@@ -1,9 +1,20 @@
-BEGIN			{FS="; +"}
+BEGIN			{FS="; {3,8}"}
 				{split($2, ano, ".");
 				if(ano[1] != null){
 					titulo[ano[1]][conta[ano[1]]] = $4;
 					resumo[ano[1]][conta[ano[1]]] = $6 "\n";  conta[ano[1]]++;
 					}
+				if($1 == 44){
+
+				print $1 "\n";
+				print $2 "\n";
+				print $3 "\n";
+				print $4 "\n";
+				print $5 "\n";
+				print $6 "\n";
+	
+				}
+
 				}
 END				{print "<html>\n	<head> Indice </head>\n	<body>\n		<ul>" > "Cartas/index.html";
 								for (i in titulo){
