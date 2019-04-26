@@ -1,8 +1,11 @@
-BEGIN			{FS="; +"}
-				{split($2, data, ".");
+BEGIN			{FS="; {2,8}"}
+NR>=1 && NR<=67	{split($2, data, ".");
 				if($3){
-					ano[$3][conta[$3]]=data[1];
-					conta[$3]++;
+					local = $3;
+					gsub("[^A-ZÇÀÁÃÂÄÈÉẼÊËÌÍĨÎÏÒÓÕÔÖÙÚŨÛÜa-zçàáãâäéèẽêëíìĩîïóòõôöùúũûü ,]", "", local);
+					gsub("^ ", "", local);
+					ano[local][conta[local]]=data[1];
+					conta[local]++;
 				} 
 				else{
 					ano["NIL"][conta["NIL"]]=data[1]; 

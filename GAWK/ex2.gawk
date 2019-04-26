@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 BEGIN			{FS="; +"}
 				{split($2, data, ".");
 				ano = data[1];
@@ -15,7 +16,6 @@ END				{print "<html>\n	<head> Indice </head>\n	<body>\n		<ul>" > "Cartas/index.
 										print "		<p>\n			<b>" titulo[i][j] "</b>\n		</p>\n" > "Cartas/" i ".html";
 										print "		<p> " resumo[i][j] "		</p>" > "Cartas/" i ".html";
 							 		}
-							 		#print "		</ul>" > "Cartas/" i ".html";
 							 		print "	</body>\n</html>" > "Cartas/" i ".html";
 							 		print "			<li><a href= \"" i ".html\">" i"</a></li>"  > "Cartas/index.html";
 							 	}
