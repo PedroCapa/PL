@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 BEGIN			{FS="; +"}
 				{split($2, data, ".");
 				ano = data[1];
