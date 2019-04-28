@@ -1,4 +1,4 @@
-BEGIN					{FS="; +"; print "digraph graphname {\nrankdir=LR" > "ex4alt.dot";}
+BEGIN					{FS="; +"; print "digraph graphname {\nrankdir=LR" > "ex4.dot";}
 $4~/\`Carta (d|a|à)/	{
 							size = split($4, titulo, "Carta d(a|e|o) ");
 							if(size > 1){
@@ -27,8 +27,8 @@ $4~/\`Carta (d|a|à)/	{
 END						{
 							for(autor in relacao){
 								for(recetor in relacao[autor]){
-									print "\""autor"\"" " -> " "\""recetor"\"" " [ label=\"" relacao[autor][recetor] "\" ] " > "ex4alt.dot";
+									print "\""autor"\"" " -> " "\""recetor"\"" " [ label=\"" relacao[autor][recetor] "\" ] " > "ex4.dot";
 								}
 							}
-							print "}" > "ex4alt.dot";
+							print "}" > "ex4.dot";
 						}
