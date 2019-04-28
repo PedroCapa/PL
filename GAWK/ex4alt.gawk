@@ -22,7 +22,13 @@ $4~/\`Carta (d|a|à)/	{
 
 							id=$1;
 							sub(" +","",id);
-
-							print "\""autor"\"" " -> " "\""recetor"\"" " [ label=\"" id "\" ] " > "ex4alt.dot";
+							relacao[autor][recetor] = relacao[autor][recetor] id " ";
 						}
-END						{print "}" > "ex4alt.dot";}
+END						{
+							for(autor in relacao){
+								for(recetor in relacao[autor]){
+									print "\""autor"\"" " -> " "\""recetor"\"" " [ label=\"" relacao[autor][recetor] "\" ] " > "ex4alt.dot";
+								}
+							}
+							print "}" > "ex4alt.dot";
+						}
