@@ -1,0 +1,224 @@
+Gramática
+
+    0 $accept: Programa $end
+
+    1 Programa: Conteudo
+
+    2 Conteudo: Estrutura
+    3         | Estrutura Conteudo
+    4         | Texto
+    5         | Texto Conteudo
+
+    6 Estrutura: Est Lista
+
+    7 Est: est
+
+    8 Lista: elem Lista
+    9      | elem
+
+   10 Texto: Top Tex
+
+   11 Top: top
+
+   12 Tex: linha
+   13    | linha Tex
+
+
+Terminais, com as regras aonde aparecem
+
+$end (0) 0
+error (256)
+est (258) 7
+elem (259) 8 9
+top (260) 11
+linha (261) 12 13
+
+
+Não-terminais, com as regras aonde aparecem
+
+$accept (7)
+    à esquerda: 0
+Programa (8)
+    à esquerda: 1, à direita: 0
+Conteudo (9)
+    à esquerda: 2 3 4 5, à direita: 1 3 5
+Estrutura (10)
+    à esquerda: 6, à direita: 2 3
+Est (11)
+    à esquerda: 7, à direita: 6
+Lista (12)
+    à esquerda: 8 9, à direita: 6 8
+Texto (13)
+    à esquerda: 10, à direita: 4 5
+Top (14)
+    à esquerda: 11, à direita: 10
+Tex (15)
+    à esquerda: 12 13, à direita: 10 13
+
+
+Estado0
+
+    0 $accept: . Programa $end
+
+    est  fazer shift, e ir para o estado 1
+    top  fazer shift, e ir para o estado 2
+
+    Programa   ir para o estado 3
+    Conteudo   ir para o estado 4
+    Estrutura  ir para o estado 5
+    Est        ir para o estado 6
+    Texto      ir para o estado 7
+    Top        ir para o estado 8
+
+
+Estado1
+
+    7 Est: est .
+
+    $default  reduzir usando a regra 7 (Est)
+
+
+Estado2
+
+   11 Top: top .
+
+    $default  reduzir usando a regra 11 (Top)
+
+
+Estado3
+
+    0 $accept: Programa . $end
+
+    $end  fazer shift, e ir para o estado 9
+
+
+Estado4
+
+    1 Programa: Conteudo .
+
+    $default  reduzir usando a regra 1 (Programa)
+
+
+Estado5
+
+    2 Conteudo: Estrutura .
+    3         | Estrutura . Conteudo
+
+    est  fazer shift, e ir para o estado 1
+    top  fazer shift, e ir para o estado 2
+
+    $default  reduzir usando a regra 2 (Conteudo)
+
+    Conteudo   ir para o estado 10
+    Estrutura  ir para o estado 5
+    Est        ir para o estado 6
+    Texto      ir para o estado 7
+    Top        ir para o estado 8
+
+
+Estado6
+
+    6 Estrutura: Est . Lista
+
+    elem  fazer shift, e ir para o estado 11
+
+    Lista  ir para o estado 12
+
+
+Estado7
+
+    4 Conteudo: Texto .
+    5         | Texto . Conteudo
+
+    est  fazer shift, e ir para o estado 1
+    top  fazer shift, e ir para o estado 2
+
+    $default  reduzir usando a regra 4 (Conteudo)
+
+    Conteudo   ir para o estado 13
+    Estrutura  ir para o estado 5
+    Est        ir para o estado 6
+    Texto      ir para o estado 7
+    Top        ir para o estado 8
+
+
+Estado8
+
+   10 Texto: Top . Tex
+
+    linha  fazer shift, e ir para o estado 14
+
+    Tex  ir para o estado 15
+
+
+Estado9
+
+    0 $accept: Programa $end .
+
+    $default  aceite
+
+
+Estado10
+
+    3 Conteudo: Estrutura Conteudo .
+
+    $default  reduzir usando a regra 3 (Conteudo)
+
+
+Estado11
+
+    8 Lista: elem . Lista
+    9      | elem .
+
+    elem  fazer shift, e ir para o estado 11
+
+    $default  reduzir usando a regra 9 (Lista)
+
+    Lista  ir para o estado 16
+
+
+Estado12
+
+    6 Estrutura: Est Lista .
+
+    $default  reduzir usando a regra 6 (Estrutura)
+
+
+Estado13
+
+    5 Conteudo: Texto Conteudo .
+
+    $default  reduzir usando a regra 5 (Conteudo)
+
+
+Estado14
+
+   12 Tex: linha .
+   13    | linha . Tex
+
+    linha  fazer shift, e ir para o estado 14
+
+    $default  reduzir usando a regra 12 (Tex)
+
+    Tex  ir para o estado 17
+
+
+Estado15
+
+   10 Texto: Top Tex .
+
+    $default  reduzir usando a regra 10 (Texto)
+
+
+Estado16
+
+    8 Lista: elem Lista .
+
+    $default  reduzir usando a regra 8 (Lista)
+
+
+Estado17
+
+   13 Tex: linha Tex .
+
+    $default  reduzir usando a regra 13 (Tex)
