@@ -14,8 +14,9 @@
 %token <str> top
 %token <str> linha
 %token <str> variavel
-%token <str> indice
-%type <str> Programa Conteudo Estrutura Texto Top Tex Est Lista Variavel 
+%token <str> obj
+%token <str> item
+%type <str> Programa Conteudo Estrutura Texto Top Tex Est Lista Variavel Itens Obj Indice
 
 %%
 Programa: Conteudo 						{printf("{\n%s\n}\n", $1);}
@@ -27,6 +28,8 @@ Conteudo: Estrutura 					{asprintf(&$$, "%s", $1);}
 		| Texto Conteudo 				{asprintf(&$$, "%s,\n%s", $1, $2);}
 		| Variavel						{asprintf(&$$, "%s", $1);}
 		| Variavel Conteudo 			{asprintf(&$$, "%s,\n%s", $1, $2);}
+		| Itens							{asprintf(&$$, "%s", $1);}
+		| Itens Conteudo	 			{asprintf(&$$, "%s,\n%s", $1, $2);}
 		;
 
 Estrutura: Est Lista 					{asprintf(&$$, "%s:[\n%s\n	]", $1, $2);}
@@ -51,6 +54,16 @@ Tex: linha								{asprintf(&$$, "%s", $1);}
 
 Variavel: variavel 						{asprintf(&$$, "	%s", $1);}
 		;
+
+Itens: Obj Indice 						{asprintf(&$$, "%s{\n		%s\n	}", $1, $2);}
+	 ;
+
+Obj: obj 								{asprintf(&$$, "	\"%s\":", $1);}
+	;
+
+Indice: item Indice						{asprintf(&$$, "%s,	\n		%s	", $1, $2);}
+	  | item 							{asprintf(&$$, "%s", $1);}
+	  ;
 
 %%
 #include "lex.yy.c"
