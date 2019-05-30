@@ -2,10 +2,6 @@
 # did you know you can embed json in yaml?
 # try uncommenting the next line
 # { foo: ’bar’ }
-yaml:
-- slim and flexible
-- better for configuration
-- better for data interchange
 paragraph: >
 Blank lines denote
 paragraph breaks
@@ -15,4 +11,6 @@ can auto
 convert line breaks
 to save space
 json:
-- rigid
+	- isto
+	- isto
+json: oso

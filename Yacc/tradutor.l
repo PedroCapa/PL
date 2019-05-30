@@ -14,12 +14,23 @@
 
 -[ ]*.*							{yylval.str = strdup(yytext + 2); 	 										 		return elem;}
 
-[A-Za-z]+:.+					{yylval.str = strdup(yytext);		int j = 0;
+[A-Za-z]+:[^A-Za-z0-9]+			{yylval.str = strdup(yytext);		int j = 0;
 																	while(yytext[yyleng - j] != ':')
 																		j++; 
 																	yylval.str[yyleng - j] = '\0';	
-																	BEGIN TEXTO; 	return top;}
-<TEXTO>[^:\n]+					{yylval.str = strdup(yytext);														return linha;}
+																	BEGIN TEXTO; 	return top;
+
+								}
+
+
+[A-Za-z]+:[ ]+[A-Za-z0-9]+		{yylval.str = strdup(yytext);		
+									return variavel;		
+								}
+
+
+<TEXTO>[^:\n]+					{
+									yylval.str = strdup(yytext);	return linha;
+								}
 
 <TEXTO>[A-Za-z]+:.+				{yylval.str = strdup(yytext);		int j = 0;
 																	while(yytext[yyleng - j] != ':')
