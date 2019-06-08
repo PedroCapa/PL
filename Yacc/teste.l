@@ -153,11 +153,17 @@
 											}
 
 
-<ELEMENTO>.*								{	//Retorna o elemento de uma lista
+<ELEMENTO>[^:\n]*							{	//Retorna o elemento de uma lista que seja uma linha
 												//printf("ELEMENTO->%s\n", yytext); 
 												yylval.str = strdup(yytext); 
 												BEGIN INITIAL; 
 												return line;
+											}
+<ELEMENTO>[A-Za-z]+/:[ ]					{	//Retorna o elemento de uma lista com chave valor
+												//printf("ELEMENTO->%s\n", yytext); 
+												yylval.str = strdup(yytext); 
+												BEGIN TWO_POINTS; 
+												return chave;
 											}
 
 <VALOR>.*									{	//Retorna o valor de uma variavel
