@@ -1,6 +1,6 @@
-tradutor: tradutor.l tradutor.y
-	flex tradutor.l
-	yacc -d -v tradutor.y
+tradutor: 6.l 6.y
+	flex 6.l
+	yacc -d -v 6.y
 	gcc -o tradutor y.tab.c
 
 teste: tradutor
