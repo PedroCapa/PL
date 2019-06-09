@@ -19,10 +19,9 @@
 %x LISTA HIFENLISTA ESPACOLISTA
 %x ELEMENTO
 %x ID AATRIB ATRIB
-
+%option stack
 
 %%
-teste	{printf("%s\n",yytext);if(niden<3){yyless(0);niden++;}}
 
 \n 											{;}
 [^ \n]											{
@@ -32,23 +31,23 @@ teste	{printf("%s\n",yytext);if(niden<3){yyless(0);niden++;}}
 														return simbolo[niden+1];
 													}
 													yyless(0);
-													BEGIN ID;
+													yy_push_state(ID);
 												}
 [ ]*/-											{	// Só deve vir para o initial quando pode ser definida uma nova identacao(quando termina em ':' a linha anterior)
 													if(yyleng>aIdentacao[niden]){
 														niden++;
 														aIdentacao[niden] = yyleng;
 														simbolo[niden] = ']';
-														BEGIN HIFENLISTA;
+														yy_push_state(HIFENLISTA);
 														//printf("[");
 														return '[';
 													}else if(yyleng<aIdentacao[niden]){
 														niden--;
-														yyless(0);
+														yyless(0);yy_pop_state();
 														//printf("%c",simbolo[niden+1]);
 														return simbolo[niden+1];
 													}else{
-														BEGIN ID;
+														yy_push_state(ID);
 													}
 												}
 
@@ -57,16 +56,16 @@ teste	{printf("%s\n",yytext);if(niden<3){yyless(0);niden++;}}
 														niden++;
 														aIdentacao[niden] = yyleng;
 														simbolo[niden] = '}';
-														BEGIN ID;
+														yy_push_state(ID);
 														//printf("{");
 														return '{';
 													}else if(yyleng<aIdentacao[niden]){
 														niden--;
-														yyless(0);
+														yyless(0);yy_pop_state();
 														//printf("%c",simbolo[niden+1]);
 														return simbolo[niden+1];
 													}else{
-														BEGIN ID;
+														yy_push_state(ID);;
 													}														
 												}
 
@@ -75,7 +74,10 @@ teste	{printf("%s\n",yytext);if(niden<3){yyless(0);niden++;}}
 													BEGIN LISTA;//printf("%c",yytext[0]);//return yytext[0]; //Identifica inicio de lista
 												}		
 
-<LISTA>[^ \n].* 								{
+<LISTA>[^ \n]([^\n:]*:*[^ \n:])*\: 				{
+													yyless(0);yy_push_state(ID);
+												}
+<LISTA>[^ \n]([^\n:]*:*[^ \n:])* 				{
 													yylval.str = strdup(yytext);
 													//printf("%s",yytext);
 													return linha;
@@ -96,7 +98,7 @@ teste	{printf("%s\n",yytext);if(niden<3){yyless(0);niden++;}}
 														return ',';
 													}
 												}
-<ESPACOLISTA>[^ ]								{yyless(0);BEGIN INITIAL;}
+<ESPACOLISTA>[^ ]								{yyless(0);yy_pop_state();}
 
 <HIFENLISTA>-[ ]+								{BEGIN LISTA;}
 
@@ -116,9 +118,20 @@ teste	{printf("%s\n",yytext);if(niden<3){yyless(0);niden++;}}
 <AATRIB>[ ]*.* 									{
 													//printf("%s",yytext);
 													yylval.str=strdup(yytext);
-													BEGIN INITIAL;
+													yy_pop_state();
 													return valor;
 												}
+
+<ESTRUTURA>[ ]*\n 								{
+													BEGIN INITIAL;
+												}
+<ESTRUTURA>[ ]*.* 								{
+													//printf("%s",yytext);
+													yylval.str=strdup(yytext);
+													yy_pop_state();
+													return valor;
+												}
+
 <<EOF>>											{
 													if(0<aIdentacao[niden]){
 														niden--;

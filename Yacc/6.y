@@ -51,7 +51,7 @@ Lista : Lista ',' Elemento						{asprintf(&$$,"%s,\n  %s",$1,$3);}
 	  ;
 
 Elemento : Linhas								{asprintf(&$$,"%s",$1);}
-		 | Estrutura							{asprintf(&$$,"%s",$1);}
+		 | Estruturas							{asprintf(&$$,"{\n%s\n}",$1);}
 		 ;
 
 Linhas : Linhas linha							{asprintf(&$$,"%s%s",$1,$2);}
@@ -65,6 +65,7 @@ int yyerror(char * s){
 }
 
 int main(){
+	aIdentacao[0]=0;
 	yyparse();
 	return 0;
 }
