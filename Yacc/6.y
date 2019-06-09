@@ -9,9 +9,11 @@
 
 %union{char* str;int no;}
 %token <str> chave
-%token <str> valor
+%token <str> valor booleano
 %token <str> linha
-%type <str> Programa Estruturas Estrutura Lista Elemento Linhas
+%token <no> inteiro
+%token nulo
+%type <str> Programa Estruturas Estrutura Lista Elemento Linhas Valor
 
 %%
 Programa : Estruturas			{printf("{%s\n}\n",$1);}
@@ -21,7 +23,7 @@ Estruturas : Estruturas Estrutura 				{asprintf(&$$,"%s,\n  %s",$1,$2);}
 		   | Estrutura 							{asprintf(&$$,"\n  %s",$1);}
 		   ;
 
-Estrutura : chave ':' valor						{asprintf(&$$,"\"%s\":\"%s\"",$1,$3);}
+Estrutura : chave ':' Valor						{asprintf(&$$,"\"%s\": %s",$1,$3);}
 		  | chave ':' '[' Lista ']'				{
 		  											char* lista = "";
 		  											for(int i=0; $4[i]!=0; i++){
@@ -45,6 +47,12 @@ Estrutura : chave ':' valor						{asprintf(&$$,"\"%s\":\"%s\"",$1,$3);}
 		  											asprintf(&$$,"\"%s\": {%s\n  }",$1,est);
 		  										}
 		  ;
+
+Valor : valor 									{asprintf(&$$,"\"%s\"",$1);}
+	  | nulo									{$$="null";}
+	  | inteiro									{asprintf(&$$,"%d",$1);}
+	  | booleano								{asprintf(&$$,"%s",$1);}
+	  ;
 
 Lista : Lista ',' Elemento						{asprintf(&$$,"%s,\n  %s",$1,$3);}
 	  | Elemento								{asprintf(&$$,"\n  %s",$1);}

@@ -1,4 +1,4 @@
-taml:
+taml::
   sup:
     sasda: dasd
   dsa: as
@@ -8,10 +8,13 @@ aqui nao: algo
 
 lista:
   - item 1
+  - inteiro:: 2213
+  - verdadeiro: true
   - item 2
   - nao falha com outra lista:
      - falhou: sad
      - ta mal
+  - nulo:
   - falha com estrutura:
      vai:
-      falhar: ok
+      falhar:: ok

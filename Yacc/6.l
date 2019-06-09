@@ -18,7 +18,7 @@
 %x ESTRUTURA
 %x LISTA HIFENLISTA ESPACOLISTA
 %x ELEMENTO
-%x ID AATRIB ATRIB
+%x ID AATRIB ATRIB NULO RECOLHEVALOR
 %option stack
 
 %%
@@ -66,7 +66,7 @@
 														//printf("%c",simbolo[niden+1]);
 														return simbolo[niden+1];
 													}else{
-														yy_push_state(ID);;
+														yy_push_state(ID);
 													}														
 												}
 
@@ -103,7 +103,7 @@
 
 <HIFENLISTA>-[ ]+								{BEGIN LISTA;}
 
-<ID>[^:-]*										{	// Identifica nome do objeto
+<ID>[^\n-]*/:									{	// Identifica nome do objeto
 													yylval.str = strdup(yytext);
 													BEGIN ATRIB;
 													//printf("%s",yytext);
@@ -115,8 +115,39 @@
 													return yytext[0];
 												}
 
-<AATRIB>[ ]*\n 									{BEGIN INITIAL;}
-<AATRIB>[ ]*.* 									{
+<AATRIB>[ ]*\n 									{BEGIN NULO;}
+<NULO>[ ]*										{
+													if(yyleng<=aIdentacao[niden]){
+														yyless(0);
+														BEGIN INITIAL;
+														return nulo;
+													}else{
+														yyless(0);
+														BEGIN INITIAL;
+													}
+												}
+<AATRIB>[ ]* 									{
+													BEGIN RECOLHEVALOR;
+												}
+<RECOLHEVALOR>[0-9]* 							{
+													//printf("%s",yytext);
+													yylval.no=atoi(yytext);
+													yy_pop_state();
+													return inteiro;
+												}
+<RECOLHEVALOR>false 							{
+													//printf("%s",yytext);
+													yylval.str=strdup(yytext);
+													yy_pop_state();
+													return booleano;
+												}
+<RECOLHEVALOR>true	 							{
+													//printf("%s",yytext);
+													yylval.str=strdup(yytext);
+													yy_pop_state();
+													return booleano;
+												}
+<RECOLHEVALOR>.* 								{
 													//printf("%s",yytext);
 													yylval.str=strdup(yytext);
 													yy_pop_state();
