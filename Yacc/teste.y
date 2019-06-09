@@ -15,6 +15,7 @@
 %token <str> line
 %token <str> valor
 %token <str> chave
+%token NULO
 %type <str> Programa Objetos Objeto Lista Elemento Texto Paragrafo
 %%
 
@@ -38,6 +39,13 @@ Objeto: ident id ':' Lista			{
 	  									for(int i = 0; i < $1+2; i++)
 	  										espacos[i] = ' ';
 	  									asprintf(&$$, "%s\"%s\": \"%s\"", espacos, $2, $4);
+	  								}
+	  | ident id ':' NULO			{
+	  									char espacos[$1+3];
+	  									espacos[$1+2] = '\0';
+	  									for(int i = 0; i < $1+2; i++)
+	  										espacos[i] = ' ';
+	  									asprintf(&$$, "%s\"%s\": null", espacos, $2);
 	  								}
 	  | ident id ':' '{' Objetos '}'{
 	  									char espacos[$1+3];
@@ -65,6 +73,10 @@ Objeto: ident id ':' Lista			{
 	  | id ':' valor 				{
 	  									asprintf(&$$, "  \"%s\": \"%s\"", $1, $3);
 	  								}
+      | id ':' NULO					{
+	  									asprintf(&$$, "  \"%s\": null", $1);
+
+      								}
 	  | id ':' 	'{' Objetos '}'		{
 	  									asprintf(&$$, "  \"%s\": {\n%s\n  }", $1, $4);
 	  								}
@@ -98,13 +110,20 @@ Elemento: ident line 				{
 	  										espacos[i] = ' ';
 										asprintf(&$$, "%s{\n%s  \"%s\":\"%s\"\n%s}", espacos, espacos, $2, $4, espacos);
 									}
+		| ident chave ':' NULO     {
+										char espacos[$1+3];
+	  									espacos[$1+2] = '\0';
+	  									for(int i = 0; i < $1+2; i++)
+	  										espacos[i] = ' ';
+										asprintf(&$$, "%s{\n%s  \"%s\": nulls\n%s}", espacos, espacos, $2,  espacos);
+									}									
 		;
 
 Texto: Texto linha					{	
 										if($2[0] == '\\' && $2[1] == 'n')
-											asprintf(&$$, "%s%s", $2, $1);
+											asprintf(&$$, "%s%s", $1, $2);
 										else
-											asprintf(&$$, "%s\\n%s", $2, $1);
+											asprintf(&$$, "%s\\n%s", $1, $2);
 									}
 	 | linha 						{	$$ = $1;	}
 	 ;
