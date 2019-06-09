@@ -2,15 +2,16 @@
 # did you know you can embed json in yaml?
 # try uncommenting the next line
 # { foo: ’bar’ }
-paragraph: >
-Blank lines denote
-paragraph breaks
-content: |-
-Or we
-can auto
-convert line breaks
-to save space
+paragraph:        >
+    Blank lines denote
+
+    paragraph breaks
 json:
-	- isto
-	- isto
-json: oso
+  - rigid
+  - better for data interchange
+  - ontem
+  - key: primary
+  - PPP
+json: 
+  key: value
+  array: sda
