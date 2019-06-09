@@ -3,8 +3,10 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
+	#include <ctype.h>
 
-	int yydebug=1;	
+	int yydebug=1;
+	int contaalfa();
 	int contaEspacos();
 	int yywrap();
 	int contaDoisPontos(char * str, int tam);
@@ -61,7 +63,7 @@
 													return ident;
 												}
 											}
-^[ \t]+/-										{//Contar o numero de espaços no inicio da linha no caso de ser uma lista
+^[ \t]+/-									{//Contar o numero de espaços no inicio da linha no caso de ser uma lista
 												if(yyleng>aIdentacao[niden]){
 													printf("2.niden++ %d\n", yyleng);
 													niden++;
@@ -126,6 +128,7 @@
 													return '{';
 												}
 												else if(yyleng - 1 == aIdentacao[niden]){
+													printf("ABRE_CHAVETA IGUAL");
 													yyless(0);
 													BEGIN INITIAL;
 													return NULO;
@@ -138,7 +141,15 @@
 												}
 											}
 <ABRE_CHAVETA>\n[ ]*-						{
-												printf("Lista %d %d\n", yyleng, aIdentacao[niden]);
+												if(yyleng - 2 == aIdentacao[niden]){
+													printf("Lista %d %d\n", yyleng, aIdentacao[niden]);
+													BEGIN INITIAL;
+													yyless(0);
+													return NULO;
+												}
+
+												printf("Maior");
+
 												BEGIN INITIAL;
 												yyless(0);
 											}
@@ -203,12 +214,19 @@
 												return line;
 											}
 <ELEMENTO>[A-Za-z]+/:[ ]					{	//Retorna o elemento de uma lista com chave valor
-												printf("ELEMENTO->%s\n", yytext); 
+												printf("ELEMENTO ID->%s\n", yytext); 
 												yylval.str = strdup(yytext); 
-												BEGIN TWO_POINTS; 
+												BEGIN TWO_POINTS;
 												return chave;
 											}
-
+<ELEMENTO>[A-Za-z]+:[ ]*\n					{	//Retorna o elemento de uma lista com chave valor
+												printf("ELEMENTO NULL->%s\n", yytext);
+												int alfa = contaalfa(yytext);
+												yyless(alfa);
+												yylval.str = strdup(yytext); 
+												BEGIN TWO_POINTS;
+												return chave;
+											}
 
 <VALOR>.*									{	//Retorna o valor de uma variavel
 												printf("valor->%s\n", yytext); 
@@ -218,7 +236,7 @@
 											}
 
 <FECHAR_CHAVETAS>\n[ ]*						{
-												if(yyleng - 1 < aIdentacao[niden]){
+												if(yyleng - 1 < aIdentacao[niden] && abertas > 0){
 													printf("FECHAR_CHAVETAS %d %d %d\n", yyleng, aIdentacao[niden], niden);
 													abertas--;
 													niden--;
@@ -244,6 +262,18 @@
 
 <*>(.|\n)									{;}
 %%
+
+int contaalfa(char* str){
+	int i = 0;
+	for(; isalnum(str[i]); i++);
+	return i;
+}
+
+int contaEspacos(char * str){
+	int i = 0;
+	for(; str[i] == ' '; i++);
+	return i;
+}
 
 int yywrap(){
 	return 1;

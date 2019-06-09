@@ -10,14 +10,17 @@ paragraph:        >
 json:
   - rigid
   - better for data interchange
-  - ontem: ssa
-  - key:
+  - ontem:
+  - key: hj
+  - DASDS: gkhdg
 json:
   key: value
   FCP: PIRMEIRO
-  Merda: segundo
+  coisas: segundo
   ss: 
-    caga:
+    a: sad
+    sasd:
+      saddsa: sasda
 object:        |
     Blank lines denote
 
