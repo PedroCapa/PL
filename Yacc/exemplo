@@ -1,7 +1,3 @@
-# <- yaml supports comments, json does not
-# did you know you can embed json in yaml?
-# try uncommenting the next line
-# { foo: ’bar’ }
 paragraph:        >
     Blank lines denote
 
@@ -10,8 +6,11 @@ json:
   - rigid
   - better for data interchange
   - ontem
-  - key: primary
-  - PPP
-json: 
+  - key: Primary
+  - SS
+json:
   key: value
-  array: sda
+  FCP: PIRMEIRO
+  Merda: segundo
+  ss: sd
+caga: nisso

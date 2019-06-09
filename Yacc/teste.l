@@ -12,6 +12,7 @@
 	int aIdentacao[20] = {0};
 	int niden = 0;
 	int nEspacos = 0;
+	int abertas = 0;
 
 	char* texto="";
 %}
@@ -26,8 +27,8 @@
 %x TEXTO_INICIO
 %x TEXTO_LINHA
 %x TEXTO_MEIO
-
-
+%x ABRE_CHAVETA
+%x FECHAR_CHAVETAS
 %%
 
 
@@ -36,29 +37,35 @@
 
 ^[ \t]*										{	//Contar o numero de espaços no inicio da linha
 												if(yyleng>aIdentacao[niden]){
+													printf("1.niden++ %d\n", yyleng);
 													niden++;
 													aIdentacao[niden] = yyleng;
 													yylval.num = niden;
+													BEGIN ID;
 													return ident;
 												}else if(yyleng<aIdentacao[niden]){
 													while(yyleng<aIdentacao[niden]){
 														niden--;
+														printf("1.niden--\n");
 													}
 													if(yyleng == aIdentacao[niden]){
+														//Talvez BEGIN ID
 														yylval.num = niden;
 														return ident;
 													}
 												}
 												BEGIN ID;
 											}
-^[ \t]*/-										{//Contar o numero de espaços no inicio da linha no caso de ser uma lista
+^[ \t]+/-										{//Contar o numero de espaços no inicio da linha no caso de ser uma lista
 												if(yyleng>aIdentacao[niden]){
+													printf("2.niden++ %d\n", yyleng);
 													niden++;
 													aIdentacao[niden] = yyleng;
 													yylval.num = niden;
-													//printf("dsadssadsaasdsadadsad\n");
+													printf("Tabs\n");
 												}else if(yyleng<aIdentacao[niden]){
 													while(yyleng<aIdentacao[niden]){
+														printf("2.niden--\n");
 														niden--;
 													}
 												}
@@ -72,7 +79,7 @@
 											}
 
 <IDENT_ELEMENTO>[ \t]+						{	//Identação de um ELEMENTO
-												//printf("Elem\n"); 
+												printf("Elem\n"); 
 												yylval.num = aIdentacao[niden]; 
 												BEGIN ELEMENTO; 
 												return ident;
@@ -84,30 +91,51 @@
 												return yytext[0];
 											}
 <ID>[^:\n]+/:								{	//Retorna o Id
-												//printf("Id->%s\n", yytext); 
+												printf("id->%s\n", yytext);
 												yylval.str = strdup(yytext); 
 												BEGIN TWO_POINTS;
 												return id;
 											}
 
-<TWO_POINTS>:[ ]*\n							{	//Retorna os dois pontos de uma lista 
-												//printf("TWO_POINTS\n");
-												BEGIN INITIAL; 
+<TWO_POINTS>:[ ]*/\n						{	//Retorna os dois pontos de uma lista 
+												printf("TWO_POINTS PARA NULO\n");
+												BEGIN ABRE_CHAVETA; 
+												return ':';
+											}
+<TWO_POINTS>:[ ]+\>							{	//Retorna os dois pontos de um > ou |
+												printf("TWO_POINTS PARA TEXTO PARAGRAFO\n");
+												BEGIN TEXTO;
+												yyless(yyleng - 1);
 												return yytext[0];
 											}
 <TWO_POINTS>:[ ]*							{	//Retorna os dois pontos de um VALOR para remover os espaços
-												//printf("TWO_POINTS\n");
+												printf("TWO_POINTS PARA VALOR\n");
 												BEGIN VALOR; 
 												return yytext[0];
 											}
-<TWO_POINTS>:[ ]*/[/>|]						{	//Retorna os dois pontos de um > ou |
-												//printf("TWO_POINTS\n");
-												BEGIN TEXTO; 
-												return yytext[0];
+
+<ABRE_CHAVETA>\n[ ]*						{
+												if(yyleng - 1 > aIdentacao[niden]){
+													printf("ABRE_CHAVETA %d %d\n", yyleng, aIdentacao[niden]);
+													abertas++;
+													BEGIN INITIAL;
+													yyless(0);
+													return '{';
+												}
+												else{
+													yyless(0);
+													BEGIN INITIAL;
+												}
+											}
+<ABRE_CHAVETA>\n[ ]*-						{
+												printf("Lista %d %d\n", yyleng, aIdentacao[niden]);
+												BEGIN INITIAL;
+												yyless(0);
 											}
 
+
 <TEXTO>.[ ]*\n								{	//Retorna o > ou |
-												//printf("texto\n");
+												printf("texto\n");
 												BEGIN TEXTO_INICIO;
 												return yytext[0];
 											}
@@ -116,6 +144,7 @@
 													//printf("Identação errada no inicio do texto YAML\n");
 												}
 												else{
+													printf("3.niden++ %d\n", yyleng);
 													niden++;
 													aIdentacao[niden] = yyleng;
 													BEGIN TEXTO_LINHA;
@@ -123,64 +152,83 @@
 											}
 
 <TEXTO_LINHA>.*								{
-												//printf("Linha->%s\n", yytext); 
+												printf("Linha->%s\n", yytext); 
 												yylval.str = strdup(yytext); 
 												BEGIN TEXTO_MEIO; 
 												return linha;
 											}
 <TEXTO_MEIO>[ ]+							{
 												if(yyleng >= aIdentacao[niden]){
+													printf("TEXTO_MEIO %d\n", yyleng);
 													BEGIN TEXTO_LINHA;
 												}
 												else{
 													while(yyleng < aIdentacao[niden])
+														printf("3.niden--\n");
 														niden--;
 													//Começar a procura do ID
 													BEGIN ID;
 												}
 											}
 <TEXTO_MEIO>^\n 							{ 	// Para o caso de ser linha vazia
-												//printf("Linha vazia\n");
+												printf("Linha vazia\n");
 												yylval.str = "\\n"; 
 												return linha;
 												
 											}
 <TEXTO_MEIO>^[A-Za-z]+/:					{ 	// Para o caso de a Identação ser 0 
-												//printf("Id->%s\n", yytext); 
+												printf("Id->%s FIZ NIDEN = 0\n", yytext);
+												niden = 0;
 												yylval.str = strdup(yytext); 
-												BEGIN TWO_POINTS; 
+												BEGIN TWO_POINTS;
 												return id;
 											}
 
 
 <ELEMENTO>[^:\n]*							{	//Retorna o elemento de uma lista que seja uma linha
-												//printf("ELEMENTO->%s\n", yytext); 
+												printf("ELEMENTO->%s\n", yytext); 
 												yylval.str = strdup(yytext); 
 												BEGIN INITIAL; 
 												return line;
 											}
 <ELEMENTO>[A-Za-z]+/:[ ]					{	//Retorna o elemento de uma lista com chave valor
-												//printf("ELEMENTO->%s\n", yytext); 
+												printf("ELEMENTO->%s\n", yytext); 
 												yylval.str = strdup(yytext); 
 												BEGIN TWO_POINTS; 
 												return chave;
 											}
 
 <VALOR>.*									{	//Retorna o valor de uma variavel
-												//printf("valor->%s\n", yytext); 
+												printf("valor->%s\n", yytext); 
 												yylval.str = strdup(yytext); 
-												BEGIN INITIAL; 
+												BEGIN FECHAR_CHAVETAS;
 												return valor;
 											}
 
+<FECHAR_CHAVETAS>\n[ ]*						{
+												if(yyleng - 1 < aIdentacao[niden]){
+													printf("FECHAR_CHAVETAS %d %d %d\n", yyleng, aIdentacao[niden], niden);
+													abertas--;
+													niden--;
+													yyless(0);
+													return '}';
+												}
+												else{
+													printf("BEGIN FECHA CHAV INITIAL\n");
+													yyless(0);
+													BEGIN INITIAL;
+												}
+											}
+
 ^[A-Za-z]+/:								{ 	// Para o caso de a Identação ser 0 
-												//printf("Id->%s\n", yytext); 
+												printf("ID->%s NIDEN = 0\n", yytext);
+												niden = 0;
 												yylval.str = strdup(yytext); 
 												BEGIN TWO_POINTS; 
 												return id;
 											}
 
-
+<*>(.|\n)									{;}
 %%
 
 int yywrap(){
