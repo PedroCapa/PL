@@ -1,11 +1,17 @@
-yaml:
-  - slim and flexible
-  - better for configuration
-  - outra
-object:
-  key:
-    - hth
-    - ku
-  sd:
-    ds: sad
-    xujigt: hih
+taml:
+  sup:
+    sasda: dasd
+  dsa: as
+
+aqui vai comer o a: algo
+aqui nao: algo
+
+lista:
+  - item 1
+  - item 2
+  - nao falha com outra lista:
+     - falhou: sad
+     - ta mal
+  - falha com estrutura:
+     vai:
+      falhar: ok

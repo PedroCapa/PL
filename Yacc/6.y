@@ -21,7 +21,7 @@ Estruturas : Estruturas Estrutura 				{asprintf(&$$,"%s,\n  %s",$1,$2);}
 		   | Estrutura 							{asprintf(&$$,"\n  %s",$1);}
 		   ;
 
-Estrutura : chave ':' valor						{asprintf(&$$,"%s:%s",$1,$3);}
+Estrutura : chave ':' valor						{asprintf(&$$,"\"%s\":\"%s\"",$1,$3);}
 		  | chave ':' '[' Lista ']'				{
 		  											char* lista = "";
 		  											for(int i=0; $4[i]!=0; i++){
@@ -31,7 +31,7 @@ Estrutura : chave ':' valor						{asprintf(&$$,"%s:%s",$1,$3);}
 		  													asprintf(&lista,"%s%c",lista,$4[i]);
 		  												}
 		  											}
-		  											asprintf(&$$,"%s: [%s\n  ]",$1,lista);
+		  											asprintf(&$$,"\"%s\": [%s\n  ]",$1,lista);
 		  										}
 		  | chave ':' '{' Estruturas '}'			{
 		  											char* est = "";
@@ -42,7 +42,7 @@ Estrutura : chave ':' valor						{asprintf(&$$,"%s:%s",$1,$3);}
 		  													asprintf(&est,"%s%c",est,$4[i]);
 		  												}
 		  											}
-		  											asprintf(&$$,"%s: {%s\n  }",$1,est);
+		  											asprintf(&$$,"\"%s\": {%s\n  }",$1,est);
 		  										}
 		  ;
 
@@ -50,7 +50,7 @@ Lista : Lista ',' Elemento						{asprintf(&$$,"%s,\n  %s",$1,$3);}
 	  | Elemento								{asprintf(&$$,"\n  %s",$1);}
 	  ;
 
-Elemento : Linhas								{asprintf(&$$,"%s",$1);}
+Elemento : Linhas								{asprintf(&$$,"\"%s\"",$1);}
 		 | Estruturas							{asprintf(&$$,"{\n%s\n}",$1);}
 		 ;
 

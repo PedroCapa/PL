@@ -27,6 +27,7 @@
 [^ \n]											{
 													if(0<aIdentacao[niden]){
 														niden--;
+														yyless(0);
 														//printf("%c",simbolo[niden+1]);
 														return simbolo[niden+1];
 													}
