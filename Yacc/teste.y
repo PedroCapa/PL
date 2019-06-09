@@ -37,7 +37,6 @@ Objeto: ident id ':' Lista			{
 	  									espacos[$1+2] = '\0';
 	  									for(int i = 0; i < $1+2; i++)
 	  										espacos[i] = ' ';
-
 	  									asprintf(&$$, "%s\"%s\": \"%s\"", espacos, $2, $4);
 	  								}
 	  | ident id ':' '{' Objetos '}'{
@@ -67,7 +66,7 @@ Objeto: ident id ':' Lista			{
 	  									asprintf(&$$, "  \"%s\": \"%s\"", $1, $3);
 	  								}
 	  | id ':' 	'{' Objetos '}'		{
-	  									asprintf(&$$, "  \"%s\": {\n  %s\n  }", $1, $4);
+	  									asprintf(&$$, "  \"%s\": {\n%s\n  }", $1, $4);
 	  								}
 	  | id ':' '>' Paragrafo		{
 	  									asprintf(&$$, "  \"%s\": \"%s\"", $1, $4);
@@ -81,7 +80,7 @@ Lista: Lista '-' Elemento			{
 	 									asprintf(&$$, "%s,\n%s", $1, $3);
 	 								}
 	 | '-' Elemento					{
-	 									asprintf(&$$, "  %s", $2);
+	 									asprintf(&$$, "%s", $2);
 	 								}
 	 ;
 
@@ -101,7 +100,12 @@ Elemento: ident line 				{
 									}
 		;
 
-Texto: Texto linha					{	asprintf(&$$, "%s\\n%s", $2, $1);	}
+Texto: Texto linha					{	
+										if($2[0] == '\\' && $2[1] == 'n')
+											asprintf(&$$, "%s%s", $2, $1);
+										else
+											asprintf(&$$, "%s\\n%s", $2, $1);
+									}
 	 | linha 						{	$$ = $1;	}
 	 ;
 
