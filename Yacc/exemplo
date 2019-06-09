@@ -1,3 +1,8 @@
+# Para a lista 
+# O elemento deveria ser NULL
+# O elemento deveria ter uma lista
+# Para as estruturas
+# Deveria abrir chavetas ou []
 paragraph:        >
     Blank lines denote
 
@@ -5,16 +10,16 @@ paragraph:        >
 json:
   - rigid
   - better for data interchange
-  - ontem
-  - key: Primary
-  - SS
+  - ontem: ssa
+  - key:
 json:
   key: value
   FCP: PIRMEIRO
   Merda: segundo
-  ss: sd
-caga: nisso
+  ss: 
+    caga:
 object:        |
     Blank lines denote
 
     paragraph breaks
+...
