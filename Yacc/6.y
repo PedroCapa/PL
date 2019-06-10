@@ -28,7 +28,7 @@ Estrutura : chave ':' Valor						{asprintf(&$$,"\"%s\": %s",$1,$3);}
 		  											char* lista = "";
 		  											for(int i=0; $4[i]!=0; i++){
 		  												if($4[i]=='\n'){
-		  													asprintf(&lista,"%s\n  ",lista);
+		  													asprintf(&lista,"%s\n    ",lista);
 		  												}else{
 		  													asprintf(&lista,"%s%c",lista,$4[i]);
 		  												}
@@ -54,12 +54,12 @@ Valor : valor 									{asprintf(&$$,"\"%s\"",$1);}
 	  | booleano								{asprintf(&$$,"%s",$1);}
 	  ;
 
-Lista : Lista ',' Elemento						{asprintf(&$$,"%s,\n  %s",$1,$3);}
-	  | Elemento								{asprintf(&$$,"\n  %s",$1);}
+Lista : Lista ',' Elemento						{asprintf(&$$,"%s,\n%s",$1,$3);}
+	  | Elemento								{asprintf(&$$,"\n%s",$1);}
 	  ;
 
 Elemento : Linhas								{asprintf(&$$,"\"%s\"",$1);}
-		 | Estruturas							{asprintf(&$$,"{\n%s\n}",$1);}
+		 | Estruturas							{asprintf(&$$,"{%s\n}",$1);}
 		 ;
 
 Linhas : Linhas linha							{asprintf(&$$,"%s%s",$1,$2);}
@@ -74,6 +74,7 @@ int yyerror(char * s){
 
 int main(){
 	aIdentacao[0]=0;
+	yy_push_state(INITIAL);
 	yyparse();
 	return 0;
 }

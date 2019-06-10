@@ -18,3 +18,8 @@ lista:
   - falha com estrutura:
      vai:
       falhar:: ok
+     som : nao
+  - xixi: sd
+  - poop:
+     - sad
+     - aaas

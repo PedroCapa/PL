@@ -23,7 +23,7 @@
 
 %%
 
-\n 											{;}
+\n 												{;}
 [^ \n]											{
 													if(0<aIdentacao[niden]){
 														niden--;
@@ -32,23 +32,24 @@
 														return simbolo[niden+1];
 													}
 													yyless(0);
-													yy_push_state(ID);
+													BEGIN ID;
 												}
 [ ]*/-											{	// Só deve vir para o initial quando pode ser definida uma nova identacao(quando termina em ':' a linha anterior)
 													if(yyleng>aIdentacao[niden]){
 														niden++;
 														aIdentacao[niden] = yyleng;
 														simbolo[niden] = ']';
-														yy_push_state(HIFENLISTA);
+														BEGIN HIFENLISTA;
 														//printf("[");
 														return '[';
 													}else if(yyleng<aIdentacao[niden]){
 														niden--;
-														yyless(0);yy_pop_state();
+														yyless(0);
+														//yy_pop_state();
 														//printf("%c",simbolo[niden+1]);
 														return simbolo[niden+1];
-													}else{
-														yy_push_state(ID);
+													}else{yyless(0);
+														yy_pop_state();
 													}
 												}
 
@@ -57,16 +58,17 @@
 														niden++;
 														aIdentacao[niden] = yyleng;
 														simbolo[niden] = '}';
-														yy_push_state(ID);
+														BEGIN ID;
 														//printf("{");
 														return '{';
 													}else if(yyleng<aIdentacao[niden]){
 														niden--;
-														yyless(0);yy_pop_state();
+														yyless(0);
+														//yy_pop_state();
 														//printf("%c",simbolo[niden+1]);
 														return simbolo[niden+1];
 													}else{
-														yy_push_state(ID);
+														BEGIN ID;//yy_pop_state();
 													}														
 												}
 
@@ -74,11 +76,17 @@
 <ID>-[ ]+										{
 													BEGIN LISTA;//printf("%c",yytext[0]);//return yytext[0]; //Identifica inicio de lista
 												}		
-
-<LISTA>[^ \n]([^\n:]*:*[^ \n:])*\: 				{
-													yyless(0);yy_push_state(ID);
+<ID>[^\n-]*/:									{	// Identifica nome do objeto
+													yylval.str = strdup(yytext);
+													BEGIN ATRIB;
+													//printf("%s",yytext);
+													return chave;
 												}
-<LISTA>[^ \n]([^\n:]*:*[^ \n:])* 				{
+
+<LISTA>.*:[ \n]					 				{
+													yyless(0);BEGIN ESPACOLISTA;yy_push_state(ID);
+												}
+<LISTA>[^:\n]*					 				{
 													yylval.str = strdup(yytext);
 													//printf("%s",yytext);
 													return linha;
@@ -103,12 +111,6 @@
 
 <HIFENLISTA>-[ ]+								{BEGIN LISTA;}
 
-<ID>[^\n-]*/:									{	// Identifica nome do objeto
-													yylval.str = strdup(yytext);
-													BEGIN ATRIB;
-													//printf("%s",yytext);
-													return chave;
-												}
 <ATRIB>:										{
 													BEGIN AATRIB;
 													//printf("%c",yytext[0]);
@@ -116,53 +118,45 @@
 												}
 
 <AATRIB>[ ]*\n 									{BEGIN NULO;}
+<AATRIB>[ ]* 									{
+													BEGIN RECOLHEVALOR;
+												}
 <NULO>[ ]*										{
 													if(yyleng<=aIdentacao[niden]){
 														yyless(0);
 														BEGIN INITIAL;
+														//printf("nulo");
 														return nulo;
 													}else{
 														yyless(0);
 														BEGIN INITIAL;
 													}
 												}
-<AATRIB>[ ]* 									{
-													BEGIN RECOLHEVALOR;
-												}
-<RECOLHEVALOR>[0-9]* 							{
+<RECOLHEVALOR>[0-9]*[ ]*						{
 													//printf("%s",yytext);
 													yylval.no=atoi(yytext);
-													yy_pop_state();
+													BEGIN INITIAL;//yy_pop_state();
 													return inteiro;
 												}
-<RECOLHEVALOR>false 							{
+<RECOLHEVALOR>false[ ]*							{
 													//printf("%s",yytext);
 													yylval.str=strdup(yytext);
-													yy_pop_state();
+													BEGIN INITIAL;//yy_pop_state();
 													return booleano;
 												}
-<RECOLHEVALOR>true	 							{
+<RECOLHEVALOR>true[ ]* 							{
 													//printf("%s",yytext);
 													yylval.str=strdup(yytext);
-													yy_pop_state();
+													BEGIN INITIAL;//yy_pop_state();
 													return booleano;
 												}
 <RECOLHEVALOR>.* 								{
 													//printf("%s",yytext);
 													yylval.str=strdup(yytext);
-													yy_pop_state();
+													BEGIN INITIAL;//yy_pop_state();
 													return valor;
 												}
 
-<ESTRUTURA>[ ]*\n 								{
-													BEGIN INITIAL;
-												}
-<ESTRUTURA>[ ]*.* 								{
-													//printf("%s",yytext);
-													yylval.str=strdup(yytext);
-													yy_pop_state();
-													return valor;
-												}
 
 <<EOF>>											{
 													if(0<aIdentacao[niden]){
