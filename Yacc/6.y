@@ -48,12 +48,17 @@ Estrutura : chave ':' Valor						{asprintf(&$$,"\"%s\": %s",$1,$3);}
 		  										}
 		  ;
 
-Valor : Linhas 									{asprintf(&$$,"\"%s\"",$1);}
+Valor : Linhas 									{
+													if(strncmp($1,"\"", 1)!=0)
+														asprintf(&$$,"\"%s\"",$1);
+													else
+														asprintf(&$$,"%s",$1);
+												}
 	  | nulo									{$$="null";}
 	  | inteiro									{asprintf(&$$,"%d",$1);}
 	  | booleano								{asprintf(&$$,"%s",$1);}
 	  | '>' Texto								{asprintf(&$$,"\"%s\\n\"",$2);}
-	  | '|' Paragrafo							{asprintf(&$$,"\"%s\\n\"",$2);}
+	  | '|' Paragrafo							{asprintf(&$$,"\"%s\"",$2);}
 	  ;
 
 Texto: Texto valor									{	
