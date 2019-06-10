@@ -24,11 +24,11 @@
 
 %%
 
-#.*		{;}
+#.*												{;/**Ignorar ocorrências de comentários nos inícios de linha*/}
 
 \n 												{;}
-[^ \n]											{
-													if(0<aIdentacao[niden]){
+[^ \n]											{//Quando o primeiro caracter de uma linha não é espaço ou \n, retirar todas as identações e passar para a SC ID
+													if(0<aIdentacao[niden]){//Devia ter sido feito um ciclo
 														niden--;
 														yyless(0);
 														return simbolo[niden+1];
@@ -36,14 +36,15 @@
 													yyless(0);
 													BEGIN ID;
 												}
-[ ]*/-											{	// Só deve vir para o initial quando pode ser definida uma nova identacao(quando termina em ':' a linha anterior)
+[ ]*/-											{	//Caso em que aparece um elemento de uma lista
+													// Se a identação diminuiu, retirar identação; se aumentou, iniciar nova lista;
 													if(yyleng>aIdentacao[niden]){
 														niden++;
 														aIdentacao[niden] = yyleng;
 														simbolo[niden] = ']';
 														BEGIN HIFENLISTA;
 														return '[';
-													}else if(yyleng<aIdentacao[niden]){
+													}else if(yyleng<aIdentacao[niden]){//Devia ter sido feito um ciclo
 														niden--;
 														yyless(0);
 														return simbolo[niden+1];
@@ -52,14 +53,14 @@
 													}
 												}
 
-[ ]*											{
+[ ]*											{  // Se a identação diminuiu, retirar identação; se aumentou, iniciar nova estrutura;
 													if(yyleng>aIdentacao[niden]){
 														niden++;
 														aIdentacao[niden] = yyleng;
 														simbolo[niden] = '}';
 														BEGIN ID;
 														return '{';
-													}else if(yyleng<aIdentacao[niden]){
+													}else if(yyleng<aIdentacao[niden]){//Devia ter sido feito um ciclo
 														niden--;
 														yyless(0);
 														return simbolo[niden+1];
@@ -69,8 +70,8 @@
 												}
 
 
-<ID>-[ ]+										{
-													BEGIN LISTA;//Identifica inicio de lista
+<ID>-[ ]+										{  //Identifica inicio de lista
+													BEGIN LISTA;
 												}		
 <ID>[^\n-]*/:									{	// Identifica nome do objeto
 													yylval.str = strdup(yytext);
