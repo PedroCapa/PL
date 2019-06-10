@@ -13,7 +13,7 @@
 %token <str> linha
 %token <no> inteiro
 %token nulo
-%type <str> Programa Estruturas Estrutura Lista Elemento Linhas Valor
+%type <str> Programa Estruturas Estrutura Lista Elemento Linhas Valor Texto Paragrafo
 
 %%
 Programa : Estruturas			{printf("{%s\n}\n",$1);}
@@ -52,7 +52,27 @@ Valor : valor 									{asprintf(&$$,"\"%s\"",$1);}
 	  | nulo									{$$="null";}
 	  | inteiro									{asprintf(&$$,"%d",$1);}
 	  | booleano								{asprintf(&$$,"%s",$1);}
+	  | '>' Texto								{asprintf(&$$,"\"%s\\n\"",$2);}
+	  | '|' Paragrafo							{asprintf(&$$,"\"%s\\n\"",$2);}
 	  ;
+
+Texto: Texto linha									{	
+														if(strcmp($2,"\\n")==0)
+															asprintf(&$$, "%s%s", $1, $2);
+														else
+															asprintf(&$$, "%s%s", $1, $2);
+													}
+	 | linha 										{	$$ = $1;	}
+	 ;
+
+Paragrafo: Paragrafo linha							{	
+														if(strcmp($2,"\\n")==0)
+															asprintf(&$$, "%s%s", $1, $2);
+														else
+															asprintf(&$$, "%s\\n%s", $1, $2);
+													}
+	 	 | linha 									{	$$ = $1;	}
+	 	 ;
 
 Lista : Lista ',' Elemento						{asprintf(&$$,"%s,\n%s",$1,$3);}
 	  | Elemento								{asprintf(&$$,"\n%s",$1);}
