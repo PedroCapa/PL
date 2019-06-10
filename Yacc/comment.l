@@ -182,8 +182,8 @@
 												}
 <RECOLHEVALOR>([^\n ]*([ ]+[^\n#])?)*[ ]+#.*	{
 													printf("%s",yytext);
-													int contaNaoEspacos(yytext);
-													char * value = strndup(yytext, 5);
+													int inicio = contaCardinal(yytext);
+													char * value = strndup(yytext, inicio - 1);
 													yylval.str=strdup(value);
 													BEGIN INITIAL;//yy_pop_state();
 													return valor;
@@ -304,7 +304,8 @@ int contaDoisPontos(char * str, int tam){
 	return j;
 
 }
-
+---------------------------------------------------------------
+---------------------------------------------------------------
 int contaNums(char * str){
 	int i = 0;
 	while(isdigit(str[i])){
@@ -313,14 +314,15 @@ int contaNums(char * str){
 	return i;
 }
 
-int contaNaoEspacos(char * str){
+int contaCardinal(char * str){
 	int i = 0;
-	while(str[i] != ' '){
+	while(str[i] != '#'){
 		i++;
 	}
 	return i;
 }
-
+---------------------------------------------------------------
+---------------------------------------------------------------
 int contaEspacos(char * str){
 	int i = 0;
 	for(; str[i] == ' ' || str[i] == 9; i++);
