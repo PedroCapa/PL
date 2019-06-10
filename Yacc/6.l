@@ -26,7 +26,7 @@
 
 #.*		{;}
 
-\n 												{;}
+\n 												{printf("IGNORA\n");}
 [^ \n]											{
 													if(0<aIdentacao[niden]){
 														niden--;
@@ -35,6 +35,7 @@
 														return simbolo[niden+1];
 													}
 													yyless(0);
+													printf("INITIAL caracteres\n");
 													BEGIN ID;
 												}
 [ ]*/-											{	printf("(%d %d)",niden, yyleng);// Só deve vir para o initial quando pode ser definida uma nova identacao(quando termina em ':' a linha anterior)
@@ -52,6 +53,7 @@
 														printf("%c",simbolo[niden+1]);
 														return simbolo[niden+1];
 													}else{yyless(0);
+														printf("Estou aqui no initial\n");
 														yy_pop_state();
 													}
 												}
@@ -62,7 +64,7 @@
 														aIdentacao[niden] = yyleng;
 														simbolo[niden] = '}';
 														BEGIN ID;
-														printf("{");
+														printf("{ No inicial %d\n", niden);
 														return '{';
 													}else if(yyleng<aIdentacao[niden]){
 														niden--;
@@ -71,6 +73,7 @@
 														printf("%c",simbolo[niden+1]);
 														return simbolo[niden+1];
 													}else{
+														printf("Estou no inicial com identacao %d\n", niden);
 														BEGIN ID;//yy_pop_state();
 													}														
 												}
@@ -82,7 +85,7 @@
 <ID>[^\n-]*/:									{	// Identifica nome do objeto
 													yylval.str = strdup(yytext);
 													BEGIN ATRIB;
-													printf("%s",yytext);
+													printf("%s Estou no ID\n",yytext);
 													return chave;
 												}
 
@@ -90,7 +93,7 @@
 													listaNula = 0;
 													yyless(0);BEGIN ESPACOLISTA;yy_push_state(ID);
 												}
-<LISTA>[\>|][ ]* 								{
+<LISTA>[\>|]([ ]*|[ ]+#.*)						{
 													//Para o caso de ser texto
 													BEGIN ESPACOLISTA;
 													yy_push_state(TEXTO);
@@ -98,6 +101,22 @@
 													printf("%c",yytext[i]);
 													listaNula = 0;
 													return yytext[i];
+												}
+<LISTA>#.*\n									{
+													BEGIN ESPACOLISTA;
+													listaNula = 0;
+													//Dá erro para um caso
+													printf("LISTA COM COMENTARIO INICIO\n");
+												}
+<LISTA>([^\n ]*([ ]+[^\n#])?)*[ ]+#.*\n			{
+													//Ter um comentario no meio da linha
+													printf("LISTA COM COMENTARIO a meio\n");
+													listaNula = 0;
+													int i = contaCardinal(yytext);
+													char *str = strndup(yytext, i - 1);
+													BEGIN ESPACOLISTA;
+													yylval.str = str;
+													return valor;
 												}
 <LISTA>[^:\n]*					 				{	
 													yyless(0);
@@ -128,13 +147,13 @@
 														return ',';
 													}
 												}
-<ESPACOLISTA>[^ ]								{yyless(0);yy_pop_state();}
+<ESPACOLISTA>[^ ]								{yyless(0); BEGIN INITIAL;}
 
 <HIFENLISTA>-[ ]*								{BEGIN LISTA;listaNula=1;printf("$");}
 
 <ATRIB>:										{
 													BEGIN AATRIB;
-													printf("%c",yytext[0]);
+													printf("%c\n",yytext[0]);
 													return yytext[0];
 												}
 
@@ -168,7 +187,7 @@
 
 
 <RECOLHEVALOR>[0-9]*[ ]+(#.*)					{
-													printf("%s",yytext);
+													printf("%s RECOLHEVALOR",yytext);
 													int nums = contaNums(yytext);
 													char* numero = strndup(yytext, nums);
 													yylval.no=atoi(numero);
@@ -190,7 +209,7 @@
 													return booleano;
 												}
 <RECOLHEVALOR>([^\n ]*([ ]+[^\n#])?)*[ ]+#.*	{
-													printf("%s",yytext);
+													printf("%s ENCONTREI COMENTARIO\n",yytext);
 													int inicio = contaCardinal(yytext);
 													char * value = strndup(yytext, inicio - 1);
 													yylval.str=strdup(value);
@@ -198,7 +217,7 @@
 													return valor;
 												}
 <RECOLHEVALOR>[0-9]*[ ]*						{
-													printf("%s",yytext);
+													printf("%s RECOLHEVALOR numero\n",yytext);
 													yylval.no=atoi(yytext);
 													yy_pop_state();
 													return inteiro;
@@ -250,7 +269,7 @@
 													//Iniciar contagem dos espaços que estão a seguir
 													BEGIN TEXTO_ESPACO;
 													//return dos tipo
-													printf("%s",yytext);
+													printf("%s TEXTO_ALFA\n",yytext);
 													return valor;
 												}
 <TEXTO_ESPACO>[ ]*								{
@@ -264,6 +283,7 @@
 													}
 													else{
 														niden--;
+														printf("Vou sair %d\n", niden);
 														yyless(0);
 														yy_pop_state();
 													}
@@ -284,6 +304,11 @@
 													yylval.str = "\\n";
 													printf("\\n");
 													return valor;
+												}
+<TEXTO_ESPACO>[^ \n]							{
+													niden--;
+													yyless(0);
+													yy_pop_state();
 												}
 
 <*>(.|\n)	{;}
