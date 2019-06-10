@@ -15,7 +15,6 @@
 %}
 
 %x TEXTO TEXTO_ALFA TEXTO_ESPACO
-%x ESTRUTURA
 %x LISTA HIFENLISTA ESPACOLISTA
 %x ELEMENTO
 %x ID AATRIB ATRIB NULO RECOLHEVALOR
@@ -83,21 +82,30 @@
 													return chave;
 												}
 
-<LISTA>.*:[ \n]					 				{
+<LISTA>.*:[ \n]					 				{//Caso seja uma estrutura
 													yyless(0);BEGIN ESPACOLISTA;yy_push_state(ID);
 												}
-<LISTA>[^:\n]*					 				{
-													yylval.str = strdup(yytext);
-													printf("%s",yytext);
-													return linha;
+<LISTA>[\>|][ ]* 								{
+													//Para o caso de ser texto
+													BEGIN ESPACOLISTA;
+													yy_push_state(TEXTO);
+													int i = contaEspacos(yytext);
+													printf("%c",yytext[i]);
+													return yytext[i];
+												}
+<LISTA>[^:\n]*					 				{	
+													yyless(0);
+													yy_push_state(RECOLHEVALOR);
 												}
 <LISTA>\n 										{ BEGIN ESPACOLISTA; }
+
+
 <ESPACOLISTA>[ ]+								{
 													if(yyleng>aIdentacao[niden]){
 														yylval.str = " ";
 														printf(" ");
 														BEGIN LISTA;
-														return linha;
+														return valor;
 													}else if(yyleng<aIdentacao[niden]){
 														BEGIN INITIAL;
 														yyless(0);
@@ -109,7 +117,7 @@
 												}
 <ESPACOLISTA>[^ ]								{yyless(0);yy_pop_state();}
 
-<HIFENLISTA>-[ ]+								{BEGIN LISTA;}
+<HIFENLISTA>-[ ]+								{BEGIN LISTA;printf("$");}
 
 <ATRIB>:										{
 													BEGIN AATRIB;
@@ -119,11 +127,13 @@
 
 <AATRIB>[ ]*\n 									{BEGIN NULO;}
 <AATRIB>[ ]* 									{
-													BEGIN RECOLHEVALOR;
+													BEGIN INITIAL;
+													yy_push_state(RECOLHEVALOR);
 												}
 <AATRIB>[ ]+[\>|][ ]*\n 						{
 													//Para o caso de ser texto
-													BEGIN TEXTO;
+													BEGIN INITIAL;
+													yy_push_state(TEXTO);
 													int i = contaEspacos(yytext);
 													//yyless(yyleng - 1);
 													printf("%c",yytext[i]);
@@ -144,25 +154,25 @@
 <RECOLHEVALOR>[0-9]*[ ]*						{
 													printf("%s",yytext);
 													yylval.no=atoi(yytext);
-													BEGIN INITIAL;//yy_pop_state();
+													yy_pop_state();
 													return inteiro;
 												}
 <RECOLHEVALOR>false[ ]*							{
 													printf("%s",yytext);
 													yylval.str=strdup(yytext);
-													BEGIN INITIAL;//yy_pop_state();
+													yy_pop_state();
 													return booleano;
 												}
 <RECOLHEVALOR>true[ ]* 							{
 													printf("%s",yytext);
 													yylval.str=strdup(yytext);
-													BEGIN INITIAL;//yy_pop_state();
+													yy_pop_state();
 													return booleano;
 												}
 <RECOLHEVALOR>.* 								{
-													printf("%s",yytext);
+													printf("?%s",yytext);
 													yylval.str=strdup(yytext);
-													BEGIN INITIAL;//yy_pop_state();
+													yy_pop_state();
 													return valor;
 												}
 
@@ -177,15 +187,15 @@
 													}
 													else if(yyleng == aIdentacao[niden]){
 														//Retornar lista vazia
-														BEGIN INITIAL;
+														yy_pop_state();
 														yylval.str = "";
-														return linha;
+														return valor;
 													}
 													else{
 														//Retornar string vazia
-														BEGIN INITIAL;
+														yy_pop_state();
 														yylval.str = "";
-														return linha;
+														return valor;
 													}
 												}
 <TEXTO_ALFA>.*									{
@@ -195,7 +205,7 @@
 													BEGIN TEXTO_ESPACO;
 													//return dos tipo
 													printf("%s",yytext);
-													return linha;
+													return valor;
 												}
 <TEXTO_ESPACO>[ ]*								{
 													if(yyleng > aIdentacao[niden]){
@@ -209,7 +219,7 @@
 													else{
 														niden--;
 														yyless(0);
-														BEGIN INITIAL;
+														yy_pop_state();
 													}
 												}
 <TEXTO_ESPACO>[ ]+\n							{
@@ -220,14 +230,14 @@
 													}
 													else{
 														yylval.str = "\\n";
-														printf("\\1n");
-														return linha;
+														printf("\\n");
+														return valor;
 													}
 												}
 <TEXTO_ESPACO>^\n 								{ 	// Para o caso de ser linha vazia APENAS Retornar O \n
 													yylval.str = "\\n";
-													printf("\\2n");
-													return linha;
+													printf("\\n");
+													return valor;
 												}
 
 <*>(.|\n)	{;}
