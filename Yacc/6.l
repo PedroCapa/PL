@@ -8,6 +8,7 @@
 
 	int contaEspacos();
 	int contaNums();
+	int contaCardinal();
 
 	int aIdentacao[20];
 	char simbolo[20];
@@ -18,13 +19,12 @@
 
 %x TEXTO TEXTO_ALFA TEXTO_ESPACO
 %x LISTA HIFENLISTA ESPACOLISTA
-%x ELEMENTO
 %x ID AATRIB ATRIB NULO RECOLHEVALOR
 %option stack
 
 %%
 
-#.*												{;}
+#.*		{;}
 
 \n 												{;}
 [^ \n]											{
@@ -166,29 +166,37 @@
 													}
 												}
 
+
 <RECOLHEVALOR>[0-9]*[ ]+(#.*)					{
 													printf("%s",yytext);
 													int nums = contaNums(yytext);
 													char* numero = strndup(yytext, nums);
 													yylval.no=atoi(numero);
-													yy_pop_state();
+													BEGIN INITIAL;//yy_pop_state();
 													return inteiro;
 												}
 <RECOLHEVALOR>false[ ]+(#.*)					{
 													printf("%s",yytext);
 													char * value = strndup(yytext, 5);
 													yylval.str=strdup(value);
-													yy_pop_state();
+													BEGIN INITIAL;//yy_pop_state();
 													return booleano;
 												}
 <RECOLHEVALOR>true[ ]+(#.*)						{
 													printf("%s",yytext);
 													char * value = strndup(yytext, 5);
 													yylval.str=strdup(value);
-													yy_pop_state();
+													BEGIN INITIAL;//yy_pop_state();
 													return booleano;
 												}
-
+<RECOLHEVALOR>([^\n ]*([ ]+[^\n#])?)*[ ]+#.*	{
+													printf("%s",yytext);
+													int inicio = contaCardinal(yytext);
+													char * value = strndup(yytext, inicio - 1);
+													yylval.str=strdup(value);
+													BEGIN INITIAL;//yy_pop_state();
+													return valor;
+												}
 <RECOLHEVALOR>[0-9]*[ ]*						{
 													printf("%s",yytext);
 													yylval.no=atoi(yytext);
@@ -315,6 +323,7 @@ int contaEspacos(char * str){
 	return i;
 }
 
+
 int contaNums(char * str){
 	int i = 0;
 	while(isdigit(str[i])){
@@ -323,9 +332,9 @@ int contaNums(char * str){
 	return i;
 }
 
-int contaNaoEspacos(char * str){
+int contaCardinal(char * str){
 	int i = 0;
-	while(str[i] != ' '){
+	while(str[i] != '#'){
 		i++;
 	}
 	return i;
