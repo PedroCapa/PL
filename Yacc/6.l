@@ -3,14 +3,16 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
+	#include <ctype.h>
 	
 
 	int contaEspacos();
+	int contaNums();
 
 	int aIdentacao[20];
 	char simbolo[20];
 	int niden = 0;
-
+	int listaNula = 0;
 	char* texto="";
 %}
 
@@ -21,6 +23,8 @@
 %option stack
 
 %%
+
+#.*												{;}
 
 \n 												{;}
 [^ \n]											{
@@ -83,6 +87,7 @@
 												}
 
 <LISTA>.*:[ \n]					 				{//Caso seja uma estrutura
+													listaNula = 0;
 													yyless(0);BEGIN ESPACOLISTA;yy_push_state(ID);
 												}
 <LISTA>[\>|][ ]* 								{
@@ -91,16 +96,24 @@
 													yy_push_state(TEXTO);
 													int i = contaEspacos(yytext);
 													printf("%c",yytext[i]);
+													listaNula = 0;
 													return yytext[i];
 												}
 <LISTA>[^:\n]*					 				{	
 													yyless(0);
+													listaNula = 0;
 													yy_push_state(RECOLHEVALOR);
 												}
-<LISTA>\n 										{ BEGIN ESPACOLISTA; }
+<LISTA>\n 										{ BEGIN ESPACOLISTA; printf("€%d€",listaNula);}
 
 
 <ESPACOLISTA>[ ]+								{
+													if(listaNula==1){
+														printf("nulo");
+														listaNula = 0;
+														yyless(0);
+														return nulo;
+													}
 													if(yyleng>aIdentacao[niden]){
 														yylval.str = " ";
 														printf(" ");
@@ -117,7 +130,7 @@
 												}
 <ESPACOLISTA>[^ ]								{yyless(0);yy_pop_state();}
 
-<HIFENLISTA>-[ ]+								{BEGIN LISTA;printf("$");}
+<HIFENLISTA>-[ ]*								{BEGIN LISTA;listaNula=1;printf("$");}
 
 <ATRIB>:										{
 													BEGIN AATRIB;
@@ -126,6 +139,7 @@
 												}
 
 <AATRIB>[ ]*\n 									{BEGIN NULO;}
+<AATRIB>[ ]+#.*\n 								{BEGIN NULO;}
 <AATRIB>[ ]* 									{
 													BEGIN INITIAL;
 													yy_push_state(RECOLHEVALOR);
@@ -151,6 +165,30 @@
 														BEGIN INITIAL;
 													}
 												}
+
+<RECOLHEVALOR>[0-9]*[ ]+(#.*)					{
+													printf("%s",yytext);
+													int nums = contaNums(yytext);
+													char* numero = strndup(yytext, nums);
+													yylval.no=atoi(numero);
+													yy_pop_state();
+													return inteiro;
+												}
+<RECOLHEVALOR>false[ ]+(#.*)					{
+													printf("%s",yytext);
+													char * value = strndup(yytext, 5);
+													yylval.str=strdup(value);
+													yy_pop_state();
+													return booleano;
+												}
+<RECOLHEVALOR>true[ ]+(#.*)						{
+													printf("%s",yytext);
+													char * value = strndup(yytext, 5);
+													yylval.str=strdup(value);
+													yy_pop_state();
+													return booleano;
+												}
+
 <RECOLHEVALOR>[0-9]*[ ]*						{
 													printf("%s",yytext);
 													yylval.no=atoi(yytext);
@@ -243,6 +281,10 @@
 <*>(.|\n)	{;}
 
 <<EOF>>											{
+													if(listaNula==1){
+														listaNula = 0;
+														return nulo;	
+													}
 													if(0<aIdentacao[niden]){
 														if(YY_START==TEXTO || YY_START==TEXTO_ALFA || YY_START==TEXTO_ESPACO){
 															BEGIN INITIAL;
@@ -270,6 +312,22 @@ int contaEspacos(char * str){
 	int i = 0;
 	for(; str[i] == ' ' || str[i] == 9; i++);
 	//printf("%d", i);
+	return i;
+}
+
+int contaNums(char * str){
+	int i = 0;
+	while(isdigit(str[i])){
+		i++;
+	}
+	return i;
+}
+
+int contaNaoEspacos(char * str){
+	int i = 0;
+	while(str[i] != ' '){
+		i++;
+	}
 	return i;
 }
 
